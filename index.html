@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Formatador Moderno - XML, JSON, HTML</title
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9253427180855888"
-     crossorigin="anonymous"></script>
+        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9253427180855888" crossorigin="anonymous"></script>
+     <title>Formatador Moderno - XML, JSON, HTML</title>
     <style>
         :root {
             --primary-color: #2563eb;
@@ -225,30 +224,6 @@
             width: 16px;
             height: 16px;
             fill: currentColor;
-        }
-
-        .output-display {
-            width: 100%;
-            min-height: 300px;
-            padding: 16px;
-            border: 2px solid var(--border-color);
-            border-radius: 8px;
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            font-family: 'Courier New', Consolas, monospace;
-            font-size: 14px;
-            line-height: 1.5;
-            resize: vertical;
-            transition: all 0.3s ease;
-            overflow-y: auto;
-            white-space: pre;
-            word-wrap: break-word;
-        }
-
-        .output-display:empty::before {
-            content: attr(placeholder);
-            color: var(--text-secondary);
-            font-style: italic;
         }
 
         textarea {
@@ -565,15 +540,6 @@
         }
 
         /* Auto-format indicator */
-        /* XML Syntax Highlighting */
-        .xml-bracket { color: #000000; font-weight: bold; }
-        .xml-tag { color: #0066cc; font-weight: bold; }
-        .xml-attribute { color: #cc6600; }
-        .xml-value { color: #009900; }
-        .xml-config { color: #cc9900; font-style: italic; }
-        .xml-text { color: var(--text-primary); }
-        .xml-comment { color: #999999; font-style: italic; }
-
         .auto-format-indicator {
             position: absolute;
             top: 8px;
@@ -656,7 +622,7 @@
                             </svg>
                         </button>
                     </div>
-                    <div id="outputText" class="output-display" readonly placeholder="O código formatado aparecerá aqui..."></div>
+                    <textarea id="outputText" readonly placeholder="O código formatado aparecerá aqui..."></textarea>
                 </div>
             </div>
 
@@ -719,7 +685,7 @@
         </div>
 
         <div class="footer">
-            <p>Copyright © 2025 - Todos os direitos reservados.</p>
+            <p>Copyright© 2025. Todos os direitos reservados</p>
         </div>
     </div>
 
@@ -958,7 +924,7 @@
                             throw new Error('Formato não suportado');
                     }
 
-                    document.getElementById('outputText').innerHTML = formattedText;
+                    document.getElementById('outputText').value = formattedText;
                     updateStats();
                     
                     if (isAutoFormat) {
@@ -1014,159 +980,23 @@
             let indent = 0;
             const tokens = text.split(/(<[^>]*>)/);
             
-            for (let i = 0; i < tokens.length; i++) {
-                const token = tokens[i];
+            tokens.forEach(token => {
                 if (token.trim()) {
                     if (token.startsWith('</')) {
-                        // Closing tag
                         indent--;
-                        formatted += indentString.repeat(Math.max(0, indent)) + colorizeXML(token) + '\n';
+                        formatted += indentString.repeat(Math.max(0, indent)) + token + '\n';
                     } else if (token.startsWith('<')) {
-                        // Opening tag or self-closing tag
-                        const nextToken = tokens[i + 1];
-                        const isSimpleElement = nextToken && !nextToken.trim().startsWith('<') && 
-                                              tokens[i + 2] && tokens[i + 2].startsWith('</');
-                        
-                        if (isSimpleElement) {
-                            // Simple element: <tag>content</tag> on same line
-                            const content = nextToken.trim();
-                            const closingTag = tokens[i + 2];
-                            formatted += indentString.repeat(indent) + 
-                                       colorizeXML(token) + 
-                                       colorizeXML(content, 'text') + 
-                                       colorizeXML(closingTag) + '\n';
-                            i += 2; // Skip the content and closing tag
-                        } else {
-                            // Complex element or self-closing
-                            formatted += indentString.repeat(indent) + colorizeXML(token) + '\n';
-                            if (!token.endsWith('/>') && !token.includes('</')) {
-                                indent++;
-                            }
+                        formatted += indentString.repeat(indent) + token + '\n';
+                        if (!token.endsWith('/>') && !token.includes('</')) {
+                            indent++;
                         }
                     } else {
-                        // Text content (for complex elements)
-                        formatted += indentString.repeat(indent) + colorizeXML(token.trim(), 'text') + '\n';
+                        formatted += indentString.repeat(indent) + token.trim() + '\n';
                     }
                 }
-            }
+            });
             
             return formatted.trim();
-        }
-
-        function colorizeXML(text, type = 'auto') {
-            if (!text || !text.trim()) return text;
-            
-            if (type === 'text') {
-                return `<span class="xml-text">${escapeHtml(text)}</span>`;
-            }
-            
-            // Handle XML comments
-            if (text.startsWith('<!--') && text.endsWith('-->')) {
-                return `<span class="xml-comment">${escapeHtml(text)}</span>`;
-            }
-            
-            // Check if it's a configuration/declaration tag
-            if (text.includes('<?xml') || text.includes('<!DOCTYPE') || text.includes('<!ENTITY')) {
-                return `<span class="xml-config">${escapeHtml(text)}</span>`;
-            }
-            
-            // Parse XML tag
-            if (text.startsWith('<')) {
-                let result = '';
-                let inTag = false;
-                let inAttribute = false;
-                let inValue = false;
-                let quoteChar = '';
-                let currentPart = '';
-                
-                for (let i = 0; i < text.length; i++) {
-                    const char = text[i];
-                    
-                    if (char === '<') {
-                        result += `<span class="xml-bracket">&lt;</span>`;
-                        inTag = true;
-                        currentPart = '';
-                    } else if (char === '>') {
-                        if (currentPart.trim()) {
-                            if (inValue) {
-                                result += `<span class="xml-value">${escapeHtml(currentPart)}</span>`;
-                            } else if (inAttribute) {
-                                result += `<span class="xml-attribute">${escapeHtml(currentPart)}</span>`;
-                            } else {
-                                result += `<span class="xml-tag">${escapeHtml(currentPart)}</span>`;
-                            }
-                        }
-                        result += `<span class="xml-bracket">&gt;</span>`;
-                        inTag = false;
-                        inAttribute = false;
-                        inValue = false;
-                        currentPart = '';
-                    } else if (inTag) {
-                        if ((char === '"' || char === "'") && !inValue) {
-                            // Start of attribute value
-                            if (currentPart.trim()) {
-                                result += `<span class="xml-attribute">${escapeHtml(currentPart)}</span>`;
-                            }
-                            result += `<span class="xml-value">${char}`;
-                            inValue = true;
-                            quoteChar = char;
-                            currentPart = '';
-                        } else if (inValue && char === quoteChar) {
-                            // End of attribute value
-                            result += `${escapeHtml(currentPart)}${char}</span>`;
-                            inValue = false;
-                            inAttribute = false;
-                            currentPart = '';
-                        } else if (!inValue && char === '=') {
-                            // Attribute assignment
-                            if (currentPart.trim()) {
-                                result += `<span class="xml-attribute">${escapeHtml(currentPart)}</span>`;
-                            }
-                            result += '=';
-                            inAttribute = false;
-                            currentPart = '';
-                        } else if (!inValue && char === ' ' && currentPart.trim()) {
-                            // Space between tag name and attributes, or between attributes
-                            if (!inAttribute) {
-                                result += `<span class="xml-tag">${escapeHtml(currentPart)}</span> `;
-                                inAttribute = true;
-                            } else {
-                                result += `<span class="xml-attribute">${escapeHtml(currentPart)}</span> `;
-                            }
-                            currentPart = '';
-                        } else if (char !== ' ' || currentPart.trim()) {
-                            currentPart += char;
-                        } else if (char === ' ') {
-                            result += ' ';
-                        }
-                    } else {
-                        currentPart += char;
-                    }
-                }
-                
-                // Handle any remaining content
-                if (currentPart.trim()) {
-                    if (inValue) {
-                        result += `<span class="xml-value">${escapeHtml(currentPart)}</span>`;
-                    } else if (inAttribute) {
-                        result += `<span class="xml-attribute">${escapeHtml(currentPart)}</span>`;
-                    } else if (inTag) {
-                        result += `<span class="xml-tag">${escapeHtml(currentPart)}</span>`;
-                    } else {
-                        result += `<span class="xml-text">${escapeHtml(currentPart)}</span>`;
-                    }
-                }
-                
-                return result;
-            }
-            
-            return `<span class="xml-text">${escapeHtml(text)}</span>`;
-        }
-
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
         }
 
         function formatHTML(text) {
@@ -1223,27 +1053,20 @@
         }
 
         function copyToClipboard() {
-            const outputElement = document.getElementById('outputText');
-            if (!outputElement.textContent && !outputElement.innerText) {
+            const outputText = document.getElementById('outputText');
+            if (!outputText.value) {
                 showMessage('Não há conteúdo formatado para copiar.', 'error');
                 return;
             }
             
-            // Create a temporary textarea to copy the text content
-            const tempTextarea = document.createElement('textarea');
-            tempTextarea.value = outputElement.textContent || outputElement.innerText;
-            document.body.appendChild(tempTextarea);
-            tempTextarea.select();
+            outputText.select();
             document.execCommand('copy');
-            document.body.removeChild(tempTextarea);
-            
             showMessage('Conteúdo copiado para a área de transferência!', 'success');
         }
 
         function updateStats() {
             const inputText = document.getElementById('inputText').value;
-            const outputElement = document.getElementById('outputText');
-            const outputText = outputElement.textContent || outputElement.innerText || '';
+            const outputText = document.getElementById('outputText').value;
             
             document.getElementById('inputLines').textContent = inputText.split('\n').length;
             document.getElementById('outputLines').textContent = outputText.split('\n').length;
@@ -1294,4 +1117,3 @@
     </script>
 </body>
 </html>
-
