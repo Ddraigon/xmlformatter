@@ -591,7 +591,196 @@
         .auto-format-indicator.show {
             opacity: 1;
         }
-    </style>
+    
+
+.input-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: stretch; /* força mesma altura */
+  gap: 32px;
+}
+
+.input-panel,
+.output-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: 500px; /* 🔒 altura fixa */
+  box-sizing: border-box;
+}
+
+/* Mantém o textarea da entrada com a altura original e o file-upload visível abaixo.
+   A saída (output-panel) vai preencher o restante do espaço com scroll interno. */
+.input-panel textarea {
+  flex: none;
+  height: 300px; /* mantém como estava antes */
+  overflow-y: auto;
+}
+
+.input-panel .file-upload {
+  flex: none;
+  margin-top: 16px;
+}
+
+/* Faz com que a área de saída ocupe o espaço restante do painel */
+.output-panel .output-display {
+  flex: 1;
+  height: auto;
+  overflow-y: auto;
+}
+
+/* responsividade */
+@media (max-width: 768px) {
+  .input-section {
+    flex-direction: column;
+  }
+  .input-panel,
+  .output-panel {
+    height: 400px;
+  }
+  .input-panel textarea {
+    height: 200px;
+  }
+}
+
+
+
+.input-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: stretch;
+  gap: 32px;
+}
+
+/* Ambos com altura e largura fixas */
+.input-panel,
+.output-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: 500px; /* 🔒 altura fixa */
+  box-sizing: border-box;
+}
+
+/* Entrada mantém comportamento anterior */
+.input-panel textarea {
+  flex: none;
+  height: 300px;
+  overflow-y: auto;
+}
+
+.input-panel .file-upload {
+  margin-top: 16px;
+}
+
+/* Saída ocupando todo o espaço interno, rolando internamente */
+.output-panel {
+  position: relative;
+}
+
+.output-panel .output-display {
+  flex: 1;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: auto;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 16px;
+  white-space: pre;
+  box-sizing: border-box;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .input-section {
+    flex-direction: column;
+  }
+
+  .input-panel,
+  .output-panel {
+    height: 400px;
+  }
+
+  .input-panel textarea {
+    height: 200px;
+  }
+}
+
+
+/* 🧩 Correção final — layout fixo e responsivo sem quebra */
+.input-section {
+  display: flex;
+  flex-wrap: nowrap;           /* 🔒 impede quebra lateral */
+  justify-content: space-between;
+  align-items: stretch;
+  gap: 32px;
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;            /* evita estouro horizontal */
+}
+
+.input-panel,
+.output-panel {
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;                /* 🔒 corrige bug do flex overflow */
+  height: 500px;               /* 🔒 altura fixa */
+  box-sizing: border-box;
+}
+
+/* Entrada */
+.input-panel textarea {
+  flex: none;
+  height: 300px;
+  overflow-y: auto;
+  resize: none;
+}
+
+.input-panel .file-upload {
+  margin-top: 16px;
+  flex-shrink: 0;
+}
+
+/* Saída */
+.output-panel {
+  position: relative;
+}
+
+.output-panel .output-display {
+  flex: 1 1 auto;
+  min-width: 0;                /* evita expansão horizontal */
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: auto;
+  width: 100%;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 16px;
+  white-space: pre;
+  word-wrap: break-word;
+  box-sizing: border-box;
+}
+
+/* 📱 Responsividade */
+@media (max-width: 900px) {
+  .input-section {
+    flex-direction: column;
+  }
+
+  .input-panel,
+  .output-panel {
+    height: 400px;
+  }
+
+  .input-panel textarea {
+    height: 200px;
+  }
+}
+
+</style>
 </head>
 <body>
     <div class="container">
@@ -719,7 +908,7 @@
         </div>
 
         <div class="footer">
-            <p>Formatador Moderno - Desenvolvido com ❤️ para desenvolvedores</p>
+            <p>Copyright © 2025 - Todos os direitos reservados.</p>
         </div>
     </div>
 
@@ -767,30 +956,67 @@
         }
 
         // Fullscreen functionality
-        function openFullscreen(type) {
-            const modal = document.getElementById('fullscreenModal');
-            const title = document.getElementById('fullscreenTitle');
-            const textarea = document.getElementById('fullscreenTextarea');
-            const sourceTextarea = document.getElementById(type === 'input' ? 'inputText' : 'outputText');
-            
-            title.textContent = type === 'input' ? 'Entrada - Tela Cheia' : 'Saída Formatada - Tela Cheia';
-            textarea.value = sourceTextarea.value;
-            textarea.readOnly = type === 'output';
-            
-            modal.style.display = 'block';
-            textarea.focus();
-            
-            // If it's input mode, sync changes back
-            if (type === 'input') {
-                textarea.addEventListener('input', function() {
-                    sourceTextarea.value = textarea.value;
-                    updateStats();
-                    scheduleAutoFormat();
-                });
-            }
-        }
+        
 
-        function closeFullscreen() {
+function openFullscreen(type) {
+    const modal = document.getElementById('fullscreenModal');
+    const title = document.getElementById('fullscreenTitle');
+    const textarea = document.getElementById('fullscreenTextarea');
+    const sourceElement = document.getElementById(type === 'input' ? 'inputText' : 'outputText');
+
+    title.textContent = type === 'input'
+        ? 'Entrada - Tela Cheia'
+        : 'Saída Formatada - Tela Cheia';
+
+    // Entrada (texto puro)
+    if (type === 'input') {
+        textarea.style.display = 'block';
+        textarea.readOnly = false;
+        textarea.value = sourceElement?.value || '';
+        textarea.focus();
+
+        // sincroniza mudanças
+        textarea.addEventListener('input', function onInput() {
+            const inputBox = document.getElementById('inputText');
+            if (inputBox) {
+                inputBox.value = textarea.value;
+                updateStats();
+                scheduleAutoFormat();
+            }
+        });
+    } 
+    // Saída (colorida com HTML)
+    else {
+        textarea.style.display = 'none'; // esconde textarea
+        // cria ou reutiliza div colorida
+        let htmlView = document.getElementById('fullscreenHtmlView');
+        if (!htmlView) {
+            htmlView = document.createElement('div');
+            htmlView.id = 'fullscreenHtmlView';
+            htmlView.style.cssText = `
+                flex: 1;
+                overflow-y: auto;
+                background: var(--bg-secondary);
+                color: var(--text-primary);
+                border: 1px solid var(--border-color);
+                border-radius: 8px;
+                padding: 16px;
+                font-family: 'JetBrains Mono', 'Fira Code', monospace;
+                font-size: 14px;
+                line-height: 1.6;
+                white-space: pre;
+            `;
+            textarea.parentNode.appendChild(htmlView);
+        }
+        htmlView.innerHTML = sourceElement?.innerHTML || '';
+        htmlView.style.display = 'block';
+    }
+
+    modal.style.display = 'block';
+}
+
+
+function closeFullscreen() {
             document.getElementById('fullscreenModal').style.display = 'none';
         }
 
